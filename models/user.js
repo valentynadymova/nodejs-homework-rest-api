@@ -26,6 +26,16 @@ const userSchema = Schema(
           required:true,
         }
       },
+      {
+        verify: {
+          type: Boolean,
+          default: false,
+        },
+        verificationToken: {
+          type: String,
+          required: [true, 'Verify token is required'],
+        },
+      },
       {versionKey: false, timestamps: true}
 );
 
@@ -47,9 +57,21 @@ userSchema.methods.comparePassword = function (password) {
         "any.required": "missing required email field",
       }),
   });
+
+  const verifyJoiSchema = Joi.object({
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net", "uk"] },
+      })
+      .required()
+      .messages({
+        "any.required": "missing required email field",
+      }),
+  });
   
  
 
 const User=model('users', userSchema);
 
-module.exports={User, joiSchema};
+module.exports={User, joiSchema, verifyJoiSchema};
